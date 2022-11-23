@@ -1,0 +1,61 @@
+CREATE DATABASE BDPM;
+
+USE BDPM;
+
+CREATE TABLE CIS_bdpm (Code_CIS INT, Denom TEXT, Forme TEXT, Voies_admin TEXT, Statut_admin TEXT, Type_proc TEXT, Etat_com TEXT, Date_AMM TEXT, Statut_Bdm TEXT, Num_aut TEXT, Titulaire TEXT, Surveillance_renfor TEXT, PRIMARY KEY (Code_CIS));
+
+SHOW TABLES;
+
+SHOW COLUMNS FROM CIS_bdpm;
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_bdpm.utf8.converted' INTO TABLE CIS_bdpm;  -- Mettre load data local si le dossier est dans le home
+
+SELECT * FROM CIS_bdpm,
+
+CREATE TABLE CIS_CIP_bdpm (Code_CIS INT, Code_CIP7 INT, Libel_present TEXT, Statut_admin TEXT, Etat_com TEXT,  Date_declaration TEXT, Code_CIP13 TEXT, Agrement_collect TEXT, Taux_remboursement TEXT, Prix_euro DECIMAL(10,2), P2 DECIMAL(10,2), P3 DECIMAL(10,2), Indication TEXT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+SHOW COLUMNS FROM CIS_CIP_bdpm;
+
+SET GLOBAL foreign_key_checks=OFF;
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_CIP_bdpm.utf8.converted'
+INTO TABLE CIS_CIP_bdpm (
+     Code_CIS,
+     Code_CIP7,
+     Libel_present,
+     Statut_admin,
+     Etat_com,
+     Date_declaration,
+     Code_CIP13,
+     Agrement_collect,
+     Taux_remboursement,
+     @P1, @P2, @P3,
+     Indication)
+SET Prix_euro=IF(@P1 = '', NULL, REPLACE(REGEXP_REPLACE(@P1, "(,)[0-9]{1,2}$", '.'), ',', '')),
+    P2=IF(@P2 = '', NULL, REPLACE(REGEXP_REPLACE(@P2, "(,)[0-9]{1,2}$", '.'), ',', '')),
+    P3=IF(@P3 = '', NULL, REPLACE(REGEXP_REPLACE(@P3, "(,)[0-9]{1,2}$", '.'), ',', ''));
+
+
+CREATE TABLE CIS_Info (Code_CIS INT, Date_debut TEXT, Date_fin TEXT, Texte TEXT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_InfoImportantes_20221122130050_bdpm.utf8.converted' INTO TABLE CIS_Info;
+
+CREATE TABLE CIS_GENER (Id_grp INT, Libel_grp TEXT, Code_CIS INT, Type_gen INT, Num_tri INT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_GENER_bdpm.utf8.converted' INTO TABLE CIS_GENER;    --  Passage par sauvegarde en csv via tableur
+
+CREATE TABLE CIS_HAS_ASMR (Code_CIS INT, Code_HAS TEXT, Motif_eval TEXT, Date_avis TEXT, Val_ASMR TEXT, Lib_ASMR TEXT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_HAS_ASMR_bdpm.utf8.converted' INTO TABLE CIS_HAS_ASMR;
+
+CREATE TABLE CIS_COMPO(Code_CIS INT,Designation TEXT, Code_substance INT, Denom_substance TEXT, Dosage TEXT, ref_dosage TEXT, Nat_compo TEXT, Num_liaison INT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_COMPO_bdpm.utf8.converted' INTO TABLE CIS_COMPO;    -- Problème dans les data, décalage de 3 lignes à partir 26894
+
+CREATE TABLE CIS_CPD(Code_CIS INT,Condi_prescri TEXT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_CPD_bdpm.utf8.converted' INTO TABLE CIS_CPD;
+
+CREATE TABLE CIS_HAS_SMR(Code_CIS INT,Code_HAS TEXT, Motif_eval TEXT, Date_avis TEXT, Val_SMR TEXT, Lib_SMR TEXT , CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_HAS_SMR_bdpm.utf8.converted' INTO TABLE CIS_HAS_SMR;

@@ -1,0 +1,26 @@
+CREATE DATABASE BDPM;
+
+USE BDPM;
+
+CREATE TABLE CIS_bdpm (Code_CIS INT, Denom TEXT, Forme TEXT, Voies_admin TEXT, Statut_admin TEXT, Type_proc TEXT, Etat_com TEXT, Date_AMM TEXT, Statut_Bdm TEXT, Num_aut TEXT, Titulaire TEXT, Surveillance_renfor TEXT, PRIMARY KEY (Code_CIS));
+
+SHOW TABLES;
+
+SHOW COLUMNS FROM CIS_bdpm;
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_bdpm.utf8.converted' INTO TABLE CIS_bdpm;
+
+SELECT * FROM CIS_bdpm,
+
+CREATE TABLE CIS_CIP_bdpm (Code_CIS INT, Code_CIP7 INT, Libel_present TEXT, Statut_admin TEXT, Etat_com TEXT,  Date_declaration TEXT, Code_CIP13 TEXT, Agrement_collect TEXT, Taux_remboursement TEXT, Prix_euro DECIMAL(10,2), P2 DECIMAL(10,2) INT, P3 DECIMAL(10,2), Indication TEXT, CONSTRAINT FOREIGN KEY (Code_CIS) REFERENCES CIS_bdpm(Code_CIS));
+
+SHOW COLUMNS FROM CIS_CIP_bdpm;
+
+SET GLOBAL foreign_key_checks=OFF;
+
+LOAD DATA INFILE '/medoc_bdd2/CIS_CIP_bdpm.utf8.converted' INTO TABLE CIS_CIP_bdpm (Code_CIS, Code_CIP7, Libel_present, Statut_admin, Etat_com, Date_declaration, Code_CIP13, Agrement_collect, Taux_remboursement, @P1, @P2, @P3, Indication) SET Prix_euro=IF(@P1 = '', NULL, REPLACE(REGEXP_REPLACE(@P1, "(,)[0-9]{1,2}$", '.'), ',', '')), P2=IF(@P2 = '', NULL, REPLACE(REGEXP_REPLACE(@P2, "(,)[0-9]{1,2}$", '.'), ',', '')), P3=IF(@P3 = '', NULL, REPLACE(REGEXP_REPLACE(@P3, "(,)[0-9]{1,2}$", '.'), ',', ''));
+
+
+
+
+
